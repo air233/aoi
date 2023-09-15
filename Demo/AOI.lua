@@ -9,9 +9,18 @@ function AOI:__init(config)
     print("create aoiServer:",self.aoiService)
 end
 
-function AOI:GetObjsByPos(pos,range)
-    print(self.aoiService)
-    return self.aoiService:GetObjsByPos(pos,range)
+--areaRange: 格子范围
+function AOI:GetObjsByPos(pos,areaRange)
+    return self.aoiService:GetObjsByPos(pos,areaRange)
+end
+
+--range: 距离范围
+function AOI:GetObjsByPosRange(pos,range)
+    return self.aoiService:GetObjsByPosForRange(pos,range)
+end
+
+function AOI:GetObjsByRangeConfig(pos,rangconfig)
+    return self.aoiService:GetObjsByRangeConfig(pos,rangconfig)
 end
 
 function AOI:GetObjsByType(pos,range,type)

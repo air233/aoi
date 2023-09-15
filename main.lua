@@ -1,11 +1,11 @@
 local current_path = package.path
 --设置package path
-local new_path = "E:\\toy\\cclua\\lua\\?.lua;E:\\toy\\cclua\\lua\\Demo\\?.lua;" .. current_path
+local new_path = "D:\\code\\aoi?.lua;D:\\code\\aoi\\Demo\\?.lua;" .. current_path
 package.path = new_path
 
 local AOI = require("AOI")
 
-config = {
+local config = {
     width = 10000,
     height = 20000,
     --格子宽高
@@ -15,13 +15,13 @@ config = {
 
 local aoiService = AOI.New(config)
 
-obj={id = 1,type = "player"}
+local obj={id = 1,type = "player"}
 
 aoiService:AddObject(obj,{x=10000,y=20000})
 
-local count = 1000
+local count = 3000
 
-users = {}
+local users = {}
 local id = 0
 local types = {'player','npc'}
 for i = 1, count,1 do
@@ -48,6 +48,25 @@ print("random pos:"..randomObj.pos.x..","..randomObj.pos.y)
 for _,v in ipairs(result) do
     print(v.type, v.id,v.pos.x,v.pos.y)
 end
+print("====================")
+local result = aoiService:GetObjsByPosRange(randomObj.pos,300)
+print("random pos:"..randomObj.pos.x..","..randomObj.pos.y)
+for _,v in ipairs(result) do
+    print(v.type, v.id,v.pos.x,v.pos.y)
+end
+print("====================")
+
+local rangconfig = {
+    shape = 2,
+    x = 200,
+    type = "player"
+}
+local result = aoiService:GetObjsByRangeConfig(randomObj.pos,rangconfig)
+print("random pos:"..randomObj.pos.x..","..randomObj.pos.y)
+for _,v in ipairs(result) do
+    print(v.type, v.id,v.pos.x,v.pos.y)
+end
+
 
 
 --local result = getPosLimit({x=3,y=1},2,{x=5,y=5})

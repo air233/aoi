@@ -3,32 +3,166 @@ local Area = require "Area"
 --区域AOI管理
 
 --pos 格子坐标
---range 格子范围
+--areaRange 格子范围
 --max 当前格子大小
-function getPosLimit(pos,range,max)
+function getPosLimit(pos,areaRange,max)
     local startPos = {x = 0 , y = 0}
     local endPos = {x = 0,y = 0}
 
-    if pos.x - range < 0 then
+    if pos.x - areaRange < 0 then
         startPos.x = 0
-        endPos.x = 2* range
-    elseif pos.x + range > max.x then
-        startPos.x = pos.x - 2 * range
+        endPos.x = 2* areaRange
+    elseif pos.x + areaRange > max.x then
         endPos.x = max.x
+        startPos.x = max.x - 2 * areaRange
     else
-        startPos.x = pos.x - range
-        endPos.x = pos.x + range
+        startPos.x = pos.x - areaRange
+        endPos.x = pos.x + areaRange
     end
 
-    if pos.y - range < 0 then
+    if pos.y - areaRange < 0 then
         startPos.y = 0
-        endPos.y = 2* range
-    elseif pos.y + range > max.y then
-        startPos.y = pos.y - 2 * range
+        endPos.y = 2* areaRange
+    elseif pos.y + areaRange > max.y then
         endPos.y = max.y
+        startPos.y = max.y - 2 * areaRange
     else
-        startPos.y = pos.y - range
-        endPos.y = pos.y + range
+        startPos.y = pos.y - areaRange
+        endPos.y = pos.y + areaRange
+    end
+
+    if startPos.x < 0 then
+        startPos.x = 0
+    end
+    if endPos.x < 0 then
+        endPos.x = 0
+    end
+
+    if startPos.y < 0 then
+        startPos.y = 0
+    end
+
+    if endPos.y < 0 then
+        endPos.y = 0
+    end
+
+    return {startPos = startPos, endPos = endPos}
+end
+
+function getPosLimit2(pos,areaRangeX,areaRangeY,max)
+    local startPos = {x = 0 , y = 0}
+    local endPos = {x = 0,y = 0}
+    if pos.x - areaRangeX < 0 then
+        startPos.x = 0
+        endPos.x = 2* areaRangeX
+    elseif pos.x + areaRangeX > max.x then
+        endPos.x = max.x
+        startPos.x = max.x - 2 * areaRangeX
+    else
+        startPos.x = pos.x - areaRangeX
+        endPos.x = pos.x + areaRangeX
+    end
+
+    if pos.y - areaRangeY < 0 then
+        startPos.y = 0
+        endPos.y = 2* areaRangeY
+    elseif pos.y + areaRangeY > max.y then
+        endPos.y = max.y
+        startPos.y = max.y - 2 * areaRangeY
+    else
+        startPos.y = pos.y - areaRangeY
+        endPos.y = pos.y + areaRangeY
+    end
+
+    if startPos.x < 0 then
+        startPos.x = 0
+    end
+    if endPos.x < 0 then
+        endPos.x = 0
+    end
+
+    if startPos.y < 0 then
+        startPos.y = 0
+    end
+
+    if endPos.y < 0 then
+        endPos.y = 0
+    end
+
+    return {startPos = startPos, endPos = endPos}
+end
+
+--pos 实际坐标
+--areaRange 范围
+--max 当前区域大小
+function getPosLimitForRange(pos,rang,max)
+    local startPos = {x = 0 , y = 0}
+    local endPos = {x = 0,y = 0}
+
+    if pos.x - rang < 0 then
+        startPos.x = 0
+        endPos.x = 2* rang
+    elseif pos.x + rang > max.width then
+        endPos.x = max.width
+        startPos.x = max.width - 2 * rang
+    else
+        startPos.x = pos.x - rang
+        endPos.x = pos.x + rang
+    end
+
+    if pos.y - rang < 0 then
+        startPos.y = 0
+        endPos.y = 2* rang
+    elseif pos.y + rang > max.height then
+        endPos.y = max.height
+        startPos.y = max.height - 2 * rang
+    else
+        startPos.y = pos.y - rang
+        endPos.y = pos.y + rang
+    end
+
+    if startPos.x < 0 then
+        startPos.x = 0
+    end
+    if endPos.x < 0 then
+        endPos.x = 0
+    end
+
+    if startPos.y < 0 then
+        startPos.y = 0
+    end
+
+    if endPos.y < 0 then
+        endPos.y = 0
+    end
+
+    return {startPos = startPos, endPos = endPos}
+end
+
+function getPosLimitForRange2(pos,rangX,rangY,max)
+    local startPos = {x = 0 , y = 0}
+    local endPos = {x = 0,y = 0}
+
+    if pos.x - rangX < 0 then
+        startPos.x = 0
+        endPos.x = 2 * rangX
+    elseif pos.x + rangX > max.width then
+        endPos.x = max.width
+        startPos.x = max.width - 2 * rangX
+    else
+        startPos.x = pos.x - rangX
+        endPos.x = pos.x + rangX
+    end
+
+    if pos.y - rangY < 0 then
+        startPos.y = 0
+        endPos.y = 2* rangY
+    elseif pos.y + rangY > max.height then
+        endPos.y = max.height
+        startPos.y = max.height - 2 * rangY
+    else
+        startPos.y = pos.y - rangY
+        endPos.y = pos.y + rangY
     end
 
     if startPos.x < 0 then
@@ -55,11 +189,16 @@ function isInRect(pos,limitPos)
         pos.y >= limitPos.startPos.y and pos.y <= limitPos.endPos.y)
 end
 
+function isInCricle(pos, origin, radius)
+    local distanceSquared = (pos.x - origin.x)^2 + (pos.y - origin.y)^2
+    return distanceSquared <= radius^2
+end
 
-function getChangeArea(oldPos,newPos,oldRange,newRange,areas,max)
+
+function getChangeArea(oldPos,newPos,oldAreaRange,newAreaRange,areas,max)
     --计算新旧区间
-    local oldLimitPos = getPosLimit(oldPos,oldRange,max)
-    local newLimitPos = getPosLimit(newPos,newRange,max)
+    local oldLimitPos = getPosLimit(oldPos,oldAreaRange,max)
+    local newLimitPos = getPosLimit(newPos,newAreaRange,max)
     
     local addAreas = {}
     local removeAreas = {}
@@ -106,13 +245,13 @@ function AreaAOI:__init(config)
 end
 
 function AreaAOI:Init()
-
-    print("AreaAOI init")
-
     self.max = {
         x = math.ceil(self.width/self.area_width) - 1,
-        y = math.ceil(self.height/self.area_height) - 1
+        y = math.ceil(self.height/self.area_height) - 1,
+        width = self.width,
+        height = self.height,
     }
+    print("AreaAOI:Init, max:",self.max)
 
     --初始化区域
     for i = 0, math.floor(self.width/self.area_width), 1 do
@@ -201,14 +340,14 @@ function AreaAOI:UpdateObject(obj,oldPos,newPos)
 end
 
 --pos 观察者位置
---rang 观察格子范围
-function AreaAOI:AddWatcher(watcher,pos,range)
+--areaRange 观察格子范围
+function AreaAOI:AddWatcher(watcher,pos,areaRange)
     if self:CheckPos(pos) == false then
         return
     end
     --根据pos和rang计算得到观察者的范围
     local areaPos = self:GetAreaPos(pos)
-    local limitPos = getPosLimit(areaPos,range,self.max)
+    local limitPos = getPosLimit(areaPos,areaRange,self.max)
 
     --添加到每个格子的观察者中
     for i = limitPos.startPos.x,limitPos.endPos.x do
@@ -218,13 +357,13 @@ function AreaAOI:AddWatcher(watcher,pos,range)
     end
 end
 
-function AreaAOI:RemoveWatcher(watcher,pos,range)
+function AreaAOI:RemoveWatcher(watcher,pos,areaRange)
     if self:CheckPos(pos) == false then
         return
     end
     --根据pos和rang计算得到观察者的范围
     local areaPos = self:GetAreaPos(pos)
-    local limitPos = getPosLimit(areaPos,range,self.max)
+    local limitPos = getPosLimit(areaPos,areaRange,self.max)
 
     --删除每个格子的观察者
     for i = limitPos.startPos.x,limitPos.endPos.x do
@@ -234,16 +373,16 @@ function AreaAOI:RemoveWatcher(watcher,pos,range)
     end
 end
 
-function AreaAOI:UpdateWatcher(watcher,oldPos,oldRange,newPos,newRange)
+function AreaAOI:UpdateWatcher(watcher,oldPos,oldAreaRange,newPos,newAreaRange)
     if self:CheckPos(oldPos) == false or self:CheckPos(newPos) == false then
         return
     end
 
-    if oldPos.x == newPos.x and oldPos.y == newPos.y and oldRange == newRange then
+    if oldPos.x == newPos.x and oldPos.y == newPos.y and oldAreaRange == newAreaRange then
         return
     end
     
-    local changeAreas = getChangeArea(oldPos,newPos,oldRange,newRange,self.areas,self.max)
+    local changeAreas = getChangeArea(oldPos,newPos,oldAreaRange,newAreaRange,self.areas,self.max)
 
     for _ , area in pairs(changeAreas.add) do
         area:AddWatcher(watcher)
@@ -256,13 +395,13 @@ function AreaAOI:UpdateWatcher(watcher,oldPos,oldRange,newPos,newRange)
     --TODO:unchangeAreas通知
 end
 
-function AreaAOI:GetObjsByPos(pos,range)
+function AreaAOI:GetObjsByPos(pos,areaRange)
     if self:CheckPos(pos) == false then
         return {}
     end
 
     local areaPos = self:GetAreaPos(pos)
-    local limitPos = getPosLimit(areaPos,range,self.max)
+    local limitPos = getPosLimit(areaPos,areaRange,self.max)
 
     local result = {}
     for i = limitPos.startPos.x,limitPos.endPos.x do
@@ -280,13 +419,13 @@ function AreaAOI:GetObjsByPos(pos,range)
     return result
 end
 
-function AreaAOI:GetObjsByPosAndType(pos,range,type)
+function AreaAOI:GetObjsByPosAndType(pos,areaRange,type)
     if self:CheckPos(pos) == false then
         return {}
     end
 
     local areaPos = self:GetAreaPos(pos)
-    local limitPos = getPosLimit(areaPos,range,self.max)
+    local limitPos = getPosLimit(areaPos,areaRange,self.max)
 
     local result = {}
     for i = limitPos.startPos.x,limitPos.endPos.x do
@@ -296,6 +435,103 @@ function AreaAOI:GetObjsByPosAndType(pos,range,type)
             if areaObjs ~= nil then
                 for _,obj in pairs(areaObjs) do
                     table.insert(result,obj)
+                end
+            end
+        end
+    end
+
+    return result
+end
+
+function AreaAOI:GetObjsByPosForRange(pos,range)
+    if self:CheckPos(pos) == false then
+        return {}
+    end
+
+    --计算格子范围
+    local areaRangeX = math.ceil(range/self.area_width)
+    local areaRangeY = math.ceil(range/self.area_height)
+
+    --根据pos和rang计算得到观察者的范围
+    local areaPos = self:GetAreaPos(pos)
+    local limitPos = getPosLimit2(areaPos,areaRangeX,areaRangeY,self.max)
+
+    --计算实际范围
+    local limitPosRange = getPosLimitForRange(pos,range,self.max)
+
+    local result = {}
+    for i = limitPos.startPos.x,limitPos.endPos.x do
+        for j = limitPos.startPos.y,limitPos.endPos.y do
+            local areaObjs = self.areas[i][j]:GetObjs()
+            
+            if areaObjs ~= nil then
+                for _,obj in pairs(areaObjs) do
+                    if isInRect(obj.pos,limitPosRange) then
+                        table.insert(result,obj)
+                    end
+                end
+            end
+        end
+    end
+
+    return result
+end
+
+function AreaAOI:GetObjsByRangeConfig(pos,rangeConfig)
+    if self:CheckPos(pos) == false then
+        return {}
+    end
+    --1 正方形
+    --2 长方形
+    --3 圆形
+    local shape = rangeConfig.shape or 1
+    local fiftetype = rangeConfig.type or 0
+
+    local rangeX , rangeY
+    if shape == 1 or shape == 3 then
+        rangeX = rangeConfig.x or self.area_width * 3
+        rangeY = rangeConfig.x or self.area_height * 3
+    elseif shape == 2 then
+        rangeX = rangeConfig.x or self.area_width * 3
+        rangeY = rangeConfig.y or self.area_height * 3
+    else
+        --默认长宽
+        rangeX = self.area_width * 3
+        rangeY = self.area_height * 3
+    end
+
+    --计算格子范围
+    local areaRangeX = math.ceil(rangeX/self.area_width)
+    local areaRangeY = math.ceil(rangeY/self.area_height)
+
+    --根据pos和rang计算得到观察者的范围
+    local areaPos = self:GetAreaPos(pos)
+    local limitPos = getPosLimit2(areaPos,areaRangeX,areaRangeY,self.max)
+
+    --计算实际范围
+    local limitPosRange = getPosLimitForRange2(pos,rangeX,rangeY,self.max)
+
+    local result = {}
+    local areaObjs
+    for i = limitPos.startPos.x,limitPos.endPos.x do
+        for j = limitPos.startPos.y,limitPos.endPos.y do
+            if fiftetype == 0 then
+                areaObjs = self.areas[i][j]:GetObjs()
+            else
+                areaObjs = self.areas[i][j]:GetObjsByType(fiftetype)
+            end
+            
+            if areaObjs ~= nil then
+                for _,obj in pairs(areaObjs) do
+                    --先做矩形判断
+                    if isInRect(obj.pos,limitPosRange) then
+                        if(shape == 1 or shape == 2) then
+                            table.insert(result,obj)
+                        elseif isInCricle(obj.pos,pos,rangeX) then
+                            --圆内判断
+                            table.insert(result,obj)
+                        end
+                    end
                 end
             end
         end
